@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="url"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #aaa;
+        }
+        .download-link {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .download-link:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>YouTube Video/MP3 Downloader</h1>
+        <form id="downloadForm">
+            <label for="url">Enter YouTube URL:</label>
+            <input type="url" id="url" placeholder="https://www.youtube.com/watch?v=example" required>
+            
+            <label for="format">Choose Format:</label>
+            <select id="format">
+                <option value="mp3">MP3 (Audio)</option>
+                <option value="mp4">MP4 (Video)</option>
+            </select>
+
+            <label for="resolution" id="resolutionLabel" style="display:none;">Choose Resolution:</label>
+            <select id="resolution" style="display:none;">
+                <option value="best">Best</option>
+                <option value="1080p">1080p</option>
+                <option value="720p">720p</option>
+                <option value="480p">480p</option>
+                <option value="360p">360p</option>
+            </select>
+
+            <br>
+            <button type="submit">Download</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const formatSelect = document.getElementById('format');
+        const resolutionSelect = document.getElementById('resolution');
+        const resolutionLabel = document.getElementById('resolutionLabel');
+
+        formatSelect.addEventListener('change', function() {
+            if (formatSelect.value === 'mp4') {
+                resolutionSelect.style.display = 'block';
+                resolutionLabel.style.display = 'block';
+            } else {
+                resolutionSelect.style.display = 'none';
+                resolutionLabel.style.display = 'none';
+            }
+        });
+
+        document.getElementById("downloadForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const url = document.getElementById("url").value;
+            const format = document.getElementById("format").value;
+            const resolution = format === 'mp4' ? document.getElementById("resolution").value : null;
+            const resultDiv = document.getElementById("result");
+
+            if (!url) {
+                resultDiv.innerHTML = "<p>Please enter a valid YouTube URL.</p>";
+                return;
+            }
+
+            resultDiv.innerHTML = "<p>Processing... Please wait.</p>";
+
+            // Replace with your locally hosted backend URL
+            fetch('https://DeadShidai.pythonanywhere.com/download',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url: url, format: format, resolution: resolution }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <p>Download ready:</p>
+                        <a class="download-link" href="${data.downloadUrl}" download>Download ${format.toUpperCase()}</a>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p>Error: ${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                resultDiv.innerHTML = "<p>Something went wrong. Please try again later.</p>";
+            });
+        });
+    </script>
+</body>
+</html>
