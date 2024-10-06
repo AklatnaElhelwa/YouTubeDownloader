@@ -104,7 +104,8 @@
         });
 
         document.getElementById("downloadForm").addEventListener("submit", function(event) {
-            event.preventDefault();
+            event.preventDefault();  // Prevent the form from submitting
+
             const url = document.getElementById("url").value;
             const format = document.getElementById("format").value;
             const resolution = format === 'mp4' ? document.getElementById("resolution").value : null;
@@ -117,8 +118,8 @@
 
             resultDiv.innerHTML = "<p>Processing... Please wait.</p>";
 
-            // Replace with your locally hosted backend URL
-            fetch('https://DeadShidai.pythonanywhere.com/download',
+            // Replace with your PythonAnywhere backend URL
+            fetch('https://your-username.pythonanywhere.com/download', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
